@@ -5,33 +5,136 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fidget: Mazes of Boreternia</title>
 <meta name="description" content="Fidget: Mazes of Boreternia, a cosy fog-of-war maze adventure for iPhone and iPad.">
+<link rel="icon" href="art/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#221d33; --card:#2e2745; --text:#f3e9d2; --muted:#c9bfa8; --accent:#f6d58a; }
-  body { margin:0; background:var(--bg); color:var(--text); font:17px/1.6 -apple-system, system-ui, sans-serif; }
-  main { max-width:720px; margin:0 auto; padding:48px 16px 64px; }
-  h1 { color:var(--accent); font-size:32px; line-height:1.2; margin-bottom:4px; }
-  .tag { color:var(--muted); margin-top:0; }
-  .card { background:var(--card); border-radius:16px; padding:20px; margin-top:24px; }
-  a { color:var(--accent); }
-  ul { padding-left:20px; }
-  footer { color:var(--muted); font-size:14px; margin-top:40px; }
+  :root {
+    --night:#1b1726; --dusk:#2e2745; --bone:#f3e9d2; --lantern:#f6d58a; --muted:#c9bfa8;
+    --paper:#f7f0dc; --paper2:#e6d6ad; --ink:#3a2f22; --roll:#d9c49a; --moss:#6f8f4e;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; min-height:100vh; color:var(--bone);
+    font:17px/1.6 -apple-system, system-ui, sans-serif;
+    background:
+      radial-gradient(circle at 50% 18%, rgba(246,213,138,.22), rgba(246,213,138,0) 38%),
+      radial-gradient(ellipse at 50% 120%, #2b3d2a 0%, rgba(43,61,42,0) 60%),
+      var(--night);
+    overflow-x:hidden;
+  }
+  main { max-width:640px; margin:0 auto; padding:32px 16px 48px; position:relative; }
+
+  /* Fireflies drifting in the dark */
+  .fly { position:absolute; width:22px; opacity:.85; animation:drift 7s ease-in-out infinite; pointer-events:none; }
+  .fly.f1 { top:40px; left:6%; }
+  .fly.f2 { top:150px; right:8%; animation-delay:-2s; width:18px; }
+  .fly.f3 { top:520px; left:2%; animation-delay:-4s; width:16px; }
+  .fly.f4 { top:760px; right:4%; animation-delay:-1s; }
+  @keyframes drift { 0%,100% { transform:translate(0,0); opacity:.4; } 50% { transform:translate(10px,-14px); opacity:1; } }
+  @media (prefers-reduced-motion: reduce) { .fly { animation:none; } }
+
+  .hero { text-align:center; }
+  .hero .icon { width:112px; height:112px; border-radius:26px; box-shadow:0 0 0 3px var(--night), 0 0 32px rgba(246,213,138,.35); }
+  h1 {
+    font-family:'Fredoka', system-ui, sans-serif; font-weight:700; color:var(--lantern);
+    font-size:clamp(28px, 7vw, 40px); line-height:1.1; margin:18px 0 4px;
+    text-shadow:0 2px 0 #6b4e1f;
+  }
+  .tag { color:var(--muted); margin:0; font-family:'Fredoka', system-ui, sans-serif; font-weight:500; }
+
+  /* The scroll: two wooden-ended rolls with parchment between */
+  .scroll { position:relative; margin:44px 0 0; }
+  .rod {
+    position:relative; height:30px; margin:0 -14px; border-radius:15px;
+    background:linear-gradient(180deg, #fbf5e4 0%, var(--roll) 55%, #b9a372 100%);
+    border:3px solid var(--night); z-index:2;
+  }
+  .rod::before, .rod::after {
+    content:""; position:absolute; top:50%; width:22px; height:22px; margin-top:-11px; border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, #a8774a, #5b3a20); border:3px solid var(--night);
+  }
+  .rod::before { left:-16px; } .rod::after { right:-16px; }
+  .paper {
+    position:relative; margin:-6px 0; padding:34px 28px 30px; color:var(--ink);
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(255,255,255,.5), rgba(255,255,255,0) 50%),
+      radial-gradient(ellipse at 85% 90%, rgba(170,130,70,.18), rgba(170,130,70,0) 55%),
+      linear-gradient(180deg, var(--paper) 0%, var(--paper2) 100%);
+    border-left:3px solid var(--night); border-right:3px solid var(--night);
+    box-shadow:inset 8px 0 0 rgba(160,120,60,.12), inset -8px 0 0 rgba(160,120,60,.12);
+  }
+  .paper h2 {
+    font-family:'Fredoka', system-ui, sans-serif; font-weight:600; color:#5b3a20;
+    font-size:22px; margin:0 0 10px; text-align:center;
+  }
+  .paper p { margin:0 0 14px; }
+  .flourish { text-align:center; color:#a8774a; letter-spacing:6px; margin:6px 0 14px; }
+  .seal { position:absolute; right:14px; bottom:-26px; width:68px; transform:rotate(-12deg); z-index:3; }
+  .links { list-style:none; padding:0; margin:18px 0 0; display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+  .links a {
+    display:inline-block; padding:10px 18px; border-radius:14px; text-decoration:none;
+    font-family:'Fredoka', system-ui, sans-serif; font-weight:600; color:var(--ink);
+    background:var(--lantern); border:3px solid var(--night); box-shadow:0 4px 0 #a8774a;
+  }
+  .links a:active { transform:translateY(3px); box-shadow:0 1px 0 #a8774a; }
+
+  /* Fidget and friends on the grass below */
+  .meadow { position:relative; height:150px; margin-top:44px; }
+  .meadow::after {
+    content:""; position:absolute; left:-16px; right:-16px; bottom:0; height:46px;
+    background:linear-gradient(180deg, #4f6b37, #2f4423); border-radius:50% 50% 0 0 / 40px 40px 0 0;
+  }
+  .meadow img { position:absolute; bottom:30px; z-index:1; }
+  .meadow .fidget { left:50%; width:120px; margin-left:-60px; bottom:24px; }
+  .meadow .frog { left:12%; width:56px; }
+  .meadow .snail { right:14%; width:50px; }
+  .meadow .bird { right:6%; bottom:96px; width:54px; }
+  .meadow .fairy { left:4%; bottom:92px; width:44px; animation:drift 6s ease-in-out infinite; }
+
+  footer { text-align:center; color:var(--muted); font-size:14px; margin-top:22px; }
+  footer a { color:var(--lantern); }
 </style>
 </head>
 <body>
 <main>
-<h1>Fidget: Mazes of Boreternia</h1>
-<p class="tag">A cosy fog-of-war maze adventure for iPhone and iPad.</p>
+  <img class="fly f1" src="art/critter_firefly.svg" alt="">
+  <img class="fly f2" src="art/critter_firefly.svg" alt="">
+  <img class="fly f3" src="art/critter_firefly.svg" alt="">
+  <img class="fly f4" src="art/critter_firefly.svg" alt="">
 
-<p>Fidget is a little villager with a lantern, and Boreternia is full of mazes. Every maze is new, hidden in fog and revealed only as Fidget walks through it. Find the exit, dodge the traps and explore ten biomes, all with one thumb.</p>
+  <header class="hero">
+    <img class="icon" src="art/icon.png" alt="Fidget app icon">
+    <h1>Fidget: Mazes of Boreternia</h1>
+    <p class="tag">A cosy fog-of-war maze adventure for iPhone and iPad</p>
+  </header>
 
-<div class="card">
-  <ul>
-    <li><a href="https://averack.github.io/fidget-privacy/support/">Support and FAQ</a></li>
-    <li><a href="https://averack.github.io/fidget-privacy/">Privacy policy</a></li>
-  </ul>
-</div>
+  <section class="scroll" aria-label="About the game">
+    <div class="rod"></div>
+    <div class="paper">
+      <h2>Hear ye, traveller!</h2>
+      <p>Fidget is a little villager with a lantern, and Boreternia is full of mazes.</p>
+      <p>Every maze is new: drawn fresh each time, hidden in fog and revealed only as Fidget walks through it. Dodge the traps, outwit the slimes and ghosts, and find the exit, all with one thumb.</p>
+      <p>Explore ten biomes, from the Mossy Cellars to the Cloudtop Spire, hunt down Lost Trinkets for your Vault, collect scrolls of Boreternian lore and dress Fidget in clothes found deep in the mazes.</p>
+      <div class="flourish">✦ ✦ ✦</div>
+      <ul class="links">
+        <li><a href="https://averack.github.io/fidget-privacy/support/">Support &amp; FAQ</a></li>
+        <li><a href="https://averack.github.io/fidget-privacy/">Privacy policy</a></li>
+      </ul>
+      <img class="seal" src="art/scroll_seal.svg" alt="">
+    </div>
+    <div class="rod"></div>
+  </section>
 
-<footer>© 2026 Ryan Zarb</footer>
+  <div class="meadow" aria-hidden="true">
+    <img class="fairy" src="art/critter_fairy_1.svg" alt="">
+    <img class="bird" src="art/critter_bird_mossy_fly.svg" alt="">
+    <img class="frog" src="art/critter_frog.svg" alt="">
+    <img class="fidget" src="art/fidget_cheer.svg" alt="">
+    <img class="snail" src="art/critter_snail.svg" alt="">
+  </div>
+
+  <footer>© 2026 Ryan Zarb</footer>
 </main>
 </body>
 </html>
